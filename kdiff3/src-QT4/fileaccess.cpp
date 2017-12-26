@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <cstdlib>
+#include <sstream>
 
 #include <klocale.h>
 #include <ktemporaryfile.h>
@@ -1389,7 +1390,20 @@ void CvsIgnoreList::init( FileAccess& dir, bool bUseLocalCvsIgnore )
            "*.so *.Z *~ *.old *.elc *.ln *.bak *.BAK *.orig *.rej *.exe _$* *$";
 
    addEntriesFromString(QString::fromLatin1(ignorestr));
-   addEntriesFromFile(QDir::homePath() + "/.cvsignore");
+	
+   QString home;
+   #if __HAIKU__
+	char dir[512];
+	find_directory(B_USER_SETTINGS_DIRECTORY, 0, false, dir, 512);
+	stringstream ss;
+	string hdir;
+	ss << dir;
+	ss >> hdir;
+	home = QString::fromStdString(hdir);
+   #else
+	home = QDir::homePath();
+   #endif
+   addEntriesFromFile(home + "/.cvsignore");
    addEntriesFromString(QString::fromLocal8Bit(::getenv("CVSIGNORE")));
 
    if (bUseLocalCvsIgnore)
