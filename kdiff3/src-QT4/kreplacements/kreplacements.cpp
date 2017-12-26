@@ -20,6 +20,7 @@
 #include "common.h"
 
 #include <assert.h>
+#include <sstream>
 
 #include <Qt> //namespace
 #include <QMessageBox>
@@ -422,6 +423,15 @@ QString KStandardDirs::findResource(const QString& resource, const QString& /*ap
       QString configPath = exePath + "/.kdiff3rc"; // This is useful for portable installations (e.g. on USB-Stick)
       if ( QFile::exists( configPath ) )
          return configPath;
+#elseif __HAIKU__
+      char dir[512]; // I don't know what the size should be :(
+      find_directory(B_USER_SETTINGS_DIRECTORY, 0, false, dir, 512);
+      stringstream ss;
+      string hdir;
+      ss << dir; // convert char* to std::string to QString :/
+      ss >> hdir;
+      QString home = QString::fromStdString(hdir);
+      return home + "/.kdiff3rc";
 #endif
       QString home = QDir::homePath();
       return home + "/.kdiff3rc";
